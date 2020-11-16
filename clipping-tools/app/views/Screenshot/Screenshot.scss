@@ -1,0 +1,84 @@
+.container {
+  position: relative;
+  font-size: 0;
+  user-select: none;
+
+  .deskTopImg {
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    // background-color: rgba(0, 0, 0, 0.3);
+
+  .moveInnerBox {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      background-color: yellow;
+      outline: 9999px solid rgba(0, 0, 0, 0.3);
+
+      .point {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        box-sizing: border-box;
+        border: 5px solid transparent;
+        background-color: pink;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .leftTopPoint {
+        top: 0;
+        left: 0;
+        transform: translate(-50%, -50%);
+      }
+      .leftMiddlePoint {
+        top: 50%;
+        left: 0;
+        transform: translate(-50%, -50%);
+      }
+      .leftBottomPoint {
+        left: 0;
+        bottom: 0;
+        transform: translate(-50%, 50%);
+      }
+
+      .middleTopPoint {
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .middleBottomPoint {
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 50%);
+      }
+      .rightTopPoint {
+        right: 0;
+        top: 0;
+        transform: translate(50%, -50%);
+      }
+      .rightMiddlerPoint {
+        top: 50%;
+        right: 0;
+        transform: translate(50%, -50%);
+      }
+      
+      .rightBottomPoint {
+        right: 0;
+        bottom: 0;
+        transform: translate(50%, 50%);
+      }
+    }
+  }
+}
