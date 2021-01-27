@@ -9,11 +9,20 @@
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, Tray, BrowserWindow, ipcMain, clipboard, globalShortcut } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import MainProgress from './ipcMain/index'
+
+import routes from './constants/routes.json';
+// import { watchHandle } from './module/children'
+// import MainProgress from './ipcMain/index'
+// import clipboardWatch from './module/clipboardWatch'
+// import child_process from 'child_process'
+
+// picGo 
+// https://github.com/Molunerfinn/PicGo/blob/0fe3ade5c3b6fa54b5944329904dd4e0605956bc/src/main/apis/app/system/index.ts
+
 
 export default class AppUpdater {
   constructor() {
@@ -76,6 +85,25 @@ const createWindow = async () => {
   mainWindow.loadURL(`file://${__dirname}/app.html`);
   mainWindow.webContents.closeDevTools();
 
+
+  // var appIcon = new Tray(path.join(__dirname,'./icon.png'));
+
+  // appIcon.on('click', (event, bounds) => {
+  //   console.log('icon click', event, bounds)
+
+    
+  // })
+
+  // appIcon.on('double-click',()=>{    
+
+  //   console.log(mainWindow);
+  //   // mainWindow.show();
+  // })
+
+
+
+
+
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   mainWindow.webContents.on('did-finish-load', () => {
@@ -116,11 +144,73 @@ app.on('window-all-closed', () => {
 
 app.on('ready', async () => {
   await createWindow()
-  MainProgress.appReady({ mainWindow })
+  await createChildWindow(routes.CLIPBOARDWATCH)
+  // MainProgress.appReady({ mainWindow })
 });
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
+});
+
+
+
+// 创建子窗口
+const createChildWindow = async (router) => {
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.DEBUG_PROD === 'true'
+  ) {
+    await installExtensions();
+  }
+
+  let childrenWin = new BrowserWindow({
+    show: false,
+    width: 300,
+    height: 300,
+    frame: false,
+    transparent: true,
+    webPreferences:
+      process.env.NODE_ENV === 'development' || process.env.E2E_BUILD === 'true'
+        ? {
+            nodeIntegration: true
+          }
+        : {
+            preload: path.join(__dirname, 'dist/renderer.prod.js')
+          }
+  });
+
+  childrenWin.loadURL(`file://${__dirname}/app.html#${router}`);
+  childrenWin.webContents.closeDevTools();
+
+
+  // @TODO: Use 'ready-to-show' event
+  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+  childrenWin.webContents.on('did-finish-load', () => {
+    if (!childrenWin) {
+      throw new Error('"childrenWin" is not defined');
+    }
+    if (process.env.START_MINIMIZED) {
+      childrenWin.minimize();
+    } else {
+      childrenWin.show();
+      childrenWin.focus();
+    }
+  });
+
+  childrenWin.on('closed', () => {
+    childrenWin = null;
+  });
+};
+
+
+ipcMain.on('text-change', (event, data) => {
+  // 因为vscode的复制会带上html
+  data.data = clipboard.readText()
+  mainWindow.webContents.send('text-change', data)
+})
+ipcMain.on('image-change', (event, data) => {
+  // const img = clipboard.readImage()
+  mainWindow.webContents.send('image-change', data)
 });

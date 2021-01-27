@@ -273,13 +273,16 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
     "@hot-loader/react-dom": "^16.13.0",
+    "antd": "^4.10.3",
     "connected-react-router": "^6.8.0",
     "core-js": "^3.6.5",
     "devtron": "^1.4.0",
+    "electron-clipboard-extended": "^1.1.1",
     "electron-debug": "^3.0.1",
     "electron-log": "^4.0.6",
     "electron-updater": "^4.2.0",
     "history": "^4.10.1",
+    "lowdb": "^1.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-hot-loader": "^4.12.19",
@@ -288,7 +291,9 @@
     "react-router-dom": "^5.1.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "source-map-support": "^0.5.16"
+    "screenshot-desktop": "^1.12.3",
+    "source-map-support": "^0.5.16",
+    "uuid": "^8.3.2"
   },
   "devEngines": {
     "node": ">=7.x",

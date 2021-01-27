@@ -1,4 +1,4 @@
-import CustomEvent from '../module/customEvent'
+import EventBus from '../module/eventBus'
 
 
-window.customEventBus = new CustomEvent()
+window.customEventBus = new EventBus()
