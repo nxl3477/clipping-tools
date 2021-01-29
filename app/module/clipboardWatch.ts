@@ -13,7 +13,7 @@ class ClipboardWatch {
     this.prevText = clipboard.readText()
     const img = clipboard.readImage()
     if( !img.isEmpty() ) {
-      this.prevImg = img.getBitmap()
+      this.prevImg = img.toDataURL()
     }
   }
 
@@ -21,8 +21,7 @@ class ClipboardWatch {
     const _this = this
     function timeOutHandle() {
       _this.readClipBoard()
-      console.log('hello world')
-      this.timer = setTimeout(timeOutHandle, this.speed)
+      _this.timer = setTimeout(timeOutHandle, _this.speed)
     }
     timeOutHandle()
   }
@@ -50,12 +49,12 @@ class ClipboardWatch {
 
 
     if( !clipBoardImage.isEmpty() ) {
-      const dataUrl = clipBoardImage.getBitmap()
+      const dataUrl = clipBoardImage.toDataURL()
       // 图片变化
       if( this.isDiffImage(this.prevImg, dataUrl) ) {
-        console.log('diff')
+        console.log('???')
         this.prevImg = dataUrl
-        $bus.emit('img-change', dataUrl)
+        $bus.emit('image-change', dataUrl)
       }
     }
   }
@@ -73,6 +72,14 @@ class ClipboardWatch {
     return prev !== cur
   }
 
+
+  setPreText(text:string='') {
+    this.prevText = text
+  }
+
+  setPreImage(base64:string = '') {
+    this.prevImg = base64
+  }
 
   on(eventName, cb) {
     $bus.on(eventName, cb)

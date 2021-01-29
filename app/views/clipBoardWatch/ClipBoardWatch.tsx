@@ -1,4 +1,4 @@
-import { ipcRenderer, clipboard, remote, app } from 'electron';
+import { ipcRenderer, clipboard, remote, app, nativeImage } from 'electron';
 import path from 'path'
 import React, { Component } from 'react';
 import { getBase64 } from '../../module/fileToBase64'
@@ -10,18 +10,11 @@ import * as UUID from 'uuid'
 import { b64ToFile } from '../../module/base64ToFile'
 
 import clipBoardWatch from '../../module/clipboardWatch'
-clipBoardWatch.on('text-change', (data) => {
-  console.log('event', data)
-}).on('image-change', (data) => {
-  console.log('图片变化', data)
-}).startWatch()
 
 
 
+// const writeFile = util.promisify(fs.writeFile)
 
-const writeFile = util.promisify(fs.writeFile)
-
-// import clipboardWatch from '../../module/clipboardWatch'
 // import '../../main/homePage/index'
 
 const clipHistory = {
@@ -90,94 +83,58 @@ function getCopyData(event) {
   })
 }
 
-// 判断不同文本
-function isDiffText (data) {
-  if ( clipHistory.prevTxt === null ) {
-    clipHistory.prevTxt = data.data
-    return false
-  }
-  const diff = clipHistory.prevTxt !== data.data
-  clipHistory.prevTxt = data.data
-  return diff
-}
-
-// 判断不同图片
-function isDiffImage ( data ) {
-  if ( clipHistory.prevImage === null ) {
-    clipHistory.prevImage = data
-    return false
-  }
-
-  const diff = clipHistory.prevImage.fileName !== data.fileName || clipHistory.prevImage.data.size !== data.data.size
-  clipHistory.prevImage = data
-  return diff
-}
-
-
 function writeLoaclImg(path, data) {
   if( !fs.existsSync(localDirPath) ) {
     fs.mkdirSync(localDirPath);
   }
-  // const dataBuffer = Buffer.from(data, 'binary')
-  // return writeFile(path, dataBuffer)
-  return fs.writeFileSync(path, data)
-}
-
-function startPaste() {
-  window.setTimeout(() => {
-    console.log('Paste')
-    document.execCommand("Paste");
-  }, 500)
+  const dataBuffer = Buffer.from(data, 'base64')
+  return fs.writeFileSync(path, dataBuffer)
 }
 
 
 export default class ClipBoardWatch extends Component  {
   componentDidMount() {
+    clipBoardWatch.on('text-change', (data) => {
+      const _data = {
+        type: 'text',
+        path: '',
+        data
+      }
+      
+      const clipTyps = clipboard.availableFormats()
+      if( !(clipTyps.length > 1 && clipTyps[1].indexOf('image') > -1) ) {
+        console.log('🍌', clipTyps)
+        ipcRenderer.send('text-change', _data)
+      }
+    }).on('image-change', (data) => {
+      const suffix = data.match(/^data:image\/(\w+);base64,/)[1]
+      const stream = data.replace(/^data:image\/\w+;base64,/, "")
+      const fileName = UUID.v4().slice(0, 7)
+      const localPath = `${localDirPath}/${fileName}.${suffix}`
 
-    document.addEventListener('paste', function(event:any) {
-      getCopyData(event).then((data: any) => {
-        
-        if( data.type === 'text' ) {
-          if( isDiffText(data) ) {
-            ipcRenderer.send('text-change', data)
-          }
-        }
+      // console.log('🍉', clipboard.availableFormats())
 
-        if( data.type === 'image' ) {
-          console.log(clipboard.readImage().toDataURL(), clipboard.readImage().toDataURL())
-          if( isDiffImage(data) ) {
+      const _data = {
+        type: 'image',
+        data,
+        path: localPath
+      }
 
-            const $img:any = clipboard.readImage()
-            // getBase64(data.data).then((b64: string) => {
-            const _data = Object.assign({}, data)
-            if( _data.fileName === 'tmp.png' ) {
-              _data.fileName = `${UUID.v4()}.png`
-            }
-            // 获取图片保存路径
-            const localPath = path.join(localDirPath, encodeURI(_data.fileName) )
-            // const extname = path.extname(localPath)
-  
-            _data.path = localPath
-            // 写入本地图片
-            _data.data = encodeURI(`file://${localPath}`)
+      writeLoaclImg(localPath, stream)
+      db.get('clipData').push(_data).write()
+      ipcRenderer.send('image-change', _data)
+    }).startWatch()
 
 
-            // const stream = b64.replace(/^data:image\/\w+;base64,/, "")
-  
-            writeLoaclImg(localPath, $img.toPNG())
-            console.log('图片保存成功')
-            db.get('clipData')
-              .push(_data)
-              .write()
-            ipcRenderer.send('image-change', _data)
-          }
-        }
-      })
-      .finally(() => {
-        // startPaste()
-      })
+    ipcRenderer.on('write-text', (event, data) => {
+      clipBoardWatch.setPreText(data.data)
+      clipboard.writeText(data.data)
     })
-    // startPaste()
+
+    ipcRenderer.on('write-image', (event, data) => {
+      clipBoardWatch.setPreImage(data.data)
+      clipboard.writeImage(nativeImage.createFromDataURL(data.data))
+    })
 
   }
   render() {
@@ -186,3 +143,51 @@ export default class ClipBoardWatch extends Component  {
     </div>
   }
 }
+
+
+
+
+
+// document.addEventListener('paste', function(event:any) {
+//   getCopyData(event).then((data: any) => {
+    
+//     if( data.type === 'text' ) {
+//       if( isDiffText(data) ) {
+//         ipcRenderer.send('text-change', data)
+//       }
+//     }
+
+//     if( data.type === 'image' ) {
+//       console.log(clipboard.readImage().toDataURL(), clipboard.readImage().toDataURL())
+//       if( isDiffImage(data) ) {
+
+//         const $img:any = clipboard.readImage()
+//         // getBase64(data.data).then((b64: string) => {
+//         const _data = Object.assign({}, data)
+//         if( _data.fileName === 'tmp.png' ) {
+//           _data.fileName = `${UUID.v4()}.png`
+//         }
+//         // 获取图片保存路径
+//         const localPath = path.join(localDirPath, encodeURI(_data.fileName) )
+//         // const extname = path.extname(localPath)
+
+//         _data.path = localPath
+//         // 写入本地图片
+//         _data.data = encodeURI(`file://${localPath}`)
+
+
+//         // const stream = b64.replace(/^data:image\/\w+;base64,/, "")
+
+//         writeLoaclImg(localPath, $img.toPNG())
+//         console.log('图片保存成功')
+//         db.get('clipData')
+//           .push(_data)
+//           .write()
+//         ipcRenderer.send('image-change', _data)
+//       }
+//     }
+//   })
+//   .finally(() => {
+//     // startPaste()
+//   })
+// })

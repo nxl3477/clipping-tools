@@ -33,6 +33,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let childrenWin: BrowserWindow | null = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -61,19 +62,20 @@ const installExtensions = async () => {
 const createWindow = async () => {
   if (
     process.env.NODE_ENV === 'development' ||
-    process.env.DEBUG_PROD === 'true'
+    process.env.DEBUG_PROD === 'true' || true
   ) {
     await installExtensions();
   }
 
   mainWindow = new BrowserWindow({
-    show: false,
+    show: true,
     width: 1024,
     height: 728,
-    frame: false,
-    transparent: true,
+    frame: true,
+    // 窗体透明
+    // transparent: true,
     webPreferences:
-      process.env.NODE_ENV === 'development' || process.env.E2E_BUILD === 'true'
+      process.env.NODE_ENV === 'development' || process.env.E2E_BUILD === 'true' || true
         ? {
             nodeIntegration: true
           }
@@ -81,7 +83,6 @@ const createWindow = async () => {
             preload: path.join(__dirname, 'dist/renderer.prod.js')
           }
   });
-
   mainWindow.loadURL(`file://${__dirname}/app.html`);
   mainWindow.webContents.closeDevTools();
 
@@ -144,7 +145,7 @@ app.on('window-all-closed', () => {
 
 app.on('ready', async () => {
   await createWindow()
-  await createChildWindow(routes.CLIPBOARDWATCH)
+  // await createChildWindow(routes.CLIPBOARDWATCH)
   // MainProgress.appReady({ mainWindow })
 });
 
@@ -165,14 +166,14 @@ const createChildWindow = async (router) => {
     await installExtensions();
   }
 
-  let childrenWin = new BrowserWindow({
+  childrenWin = new BrowserWindow({
     show: false,
     width: 300,
     height: 300,
-    frame: false,
-    transparent: true,
+    frame: true,
+    // transparent: true,
     webPreferences:
-      process.env.NODE_ENV === 'development' || process.env.E2E_BUILD === 'true'
+      process.env.NODE_ENV === 'development' || process.env.E2E_BUILD === 'true' || true
         ? {
             nodeIntegration: true
           }
@@ -206,11 +207,14 @@ const createChildWindow = async (router) => {
 
 
 ipcMain.on('text-change', (event, data) => {
-  // 因为vscode的复制会带上html
-  data.data = clipboard.readText()
   mainWindow.webContents.send('text-change', data)
 })
 ipcMain.on('image-change', (event, data) => {
-  // const img = clipboard.readImage()
   mainWindow.webContents.send('image-change', data)
 });
+ipcMain.on('write-text', (event, data) => {
+  childrenWin.webContents.send('write-text', data)
+})
+ipcMain.on('write-image', (event, data) => {
+  childrenWin.webContents.send('write-image', data)
+})

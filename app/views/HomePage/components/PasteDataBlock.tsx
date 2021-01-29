@@ -8,27 +8,32 @@ console.log('styles🍉', styles)
 // import '../../main/homePage/index'
 // const { clipboard, ipcRenderer: ipc } = require("electron");
 
-interface IProps {
+type Item = {
   type: 'image' | 'text'
   data: string,
+  srcPath: string,
   path: string,
+}
+
+interface IProps {
+  item: Item
   writeClipBordText: (text:string) => void,
   writeClipBordImg: (path:string) => void,
 }
 
 
 
-const textBlock = (data, writeClipBordText) => {
-  const _data = data.replace(/\n/g, '')
-  return <div className={styles.textBlock} title={data} onClick={() => writeClipBordText(data)}>
+const textBlock = (item, writeClipBordText) => {
+  const _data = item.data.replace(/\n/g, '')
+  return <div className={styles.textBlock} title={item.data} onClick={() => writeClipBordText(item)}>
     <div className={styles.textBlock_inner}>
-      <span>{_data}</span>  
+      <span>{_data}</span>
     </div>
   </div>
 }
 
-const imgBlock = (data, path, writeClipBordImg) => {
-  return <div className={styles.imgBlock} style={{ backgroundImage: `url(${data})` }} onClick={() => writeClipBordImg(path)}>
+const imgBlock = (item, writeClipBordImg) => {
+  return <div className={styles.imgBlock} style={{ backgroundImage: `url(${item.srcPath})` }} onClick={() => writeClipBordImg(item)}>
     </div>
 }
 
@@ -57,10 +62,10 @@ export default class PasteDataHistory extends Component<IProps>  {
 
   render() {
 
-    const { type, data, path, writeClipBordText, writeClipBordImg } = this.props
+    const { item, writeClipBordText, writeClipBordImg } = this.props
     return <>
       {
-        type === 'text' ? textBlock(data, writeClipBordText) : imgBlock(data, path, writeClipBordImg)
+        item.type === 'text' ? textBlock(item, writeClipBordText) : imgBlock(item, writeClipBordImg)
       }
     </>
   }

@@ -10,6 +10,7 @@ import routes from '../../constants/routes.json'
 // const { clipboard, ipcRenderer: ipc } = require("electron");
 
 
+const makeLocalPath = (localPath) => `file://${encodeURI(localPath)}`
 
 export default class HomePage extends Component  {
   public dataList: any[] = [];
@@ -38,6 +39,7 @@ export default class HomePage extends Component  {
 
     ipcRenderer.on('image-change', (event, data) => {
       console.log('image-change', data)
+      data.srcPath = makeLocalPath(data.path)
       // const _url = URL.createObjectURL(b64ToFile(data, undefined, undefined) )
       this.addPasteData(data)
     })
@@ -52,35 +54,27 @@ export default class HomePage extends Component  {
     }))
   } 
 
-
-  watchClipBoard() {
-    
-  }
-  writeClipBordText(text='') {
-    clipboard.writeText(text)
+  writeClipBordText(item) {
+    // clipboard.writeText(text)
+    ipcRenderer.send('write-text', item)
     message.success('复制成功')
   }
 
-  writeClipBordImg(path='') {
+  writeClipBordImg(item) {
+    console.log('path', item)
     try {
-      clipboard.writeImage(nativeImage.createFromPath(path))
+      // clipboard.writeImage(nativeImage.createFromPath(path))
+      ipcRenderer.send('write-image', item)
       message.success('复制成功')
     }catch(e) {
       console.log('写入错误erroor', e)
     }
   }
 
-  addCount() {
-    this.setState({
-      count: this.state.count + 1
-    })
-    // ipc.send('copy-img')
-  }
-
   render() {
     return <div className={styles.homePage}>
       {
-        this.state.dataList.map((ele: any, index) => <PasteDataBlock type={ele.type} data={ele.data} path={ele.path} writeClipBordText={this.writeClipBordText} writeClipBordImg={this.writeClipBordImg} key={index} /> )
+        this.state.dataList.map((item: any, index) => <PasteDataBlock item={item} writeClipBordText={this.writeClipBordText} writeClipBordImg={this.writeClipBordImg} key={index} /> )
       }
     </div>
   }
