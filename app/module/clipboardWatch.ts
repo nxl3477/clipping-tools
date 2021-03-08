@@ -7,6 +7,7 @@ class ClipboardWatch {
   public speed: number
   public prevText: any
   public prevImg: any
+  public isOpen: boolean
   constructor() {
     this.timer = null
     this.speed = 600
@@ -18,6 +19,10 @@ class ClipboardWatch {
   }
 
   startWatch() {
+    if( this.isOpen ) {
+      return false
+    }
+    this.isOpen = true
     const _this = this
     function timeOutHandle() {
       _this.readClipBoard()
@@ -28,13 +33,13 @@ class ClipboardWatch {
 
   stopWatch() {
     clearTimeout(this.timer)
+    this.isOpen = false
     this.timer = null
   }
 
   setSpeed(speed:number) {
     this.stopWatch()
     this.speed = speed
-    if( this.timer ) this.startWatch()
   }
 
 
@@ -52,7 +57,6 @@ class ClipboardWatch {
       const dataUrl = clipBoardImage.toDataURL()
       // 图片变化
       if( this.isDiffImage(this.prevImg, dataUrl) ) {
-        console.log('???')
         this.prevImg = dataUrl
         $bus.emit('image-change', dataUrl)
       }

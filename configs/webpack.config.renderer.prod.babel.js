@@ -10,6 +10,7 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
+const CopyPlugin = require("copy-webpack-plugin");
 import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
 import DeleteSourceMaps from '../internals/scripts/DeleteSourceMaps';
 
@@ -217,6 +218,13 @@ export default merge.smart(baseConfig, {
       analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
       openAnalyzer: process.env.OPEN_ANALYZER === 'true'
-    })
+    }),
+    new CopyPlugin([
+      {
+        from: path.join(__dirname, '../app/static'),
+        to: path.join(__dirname,  '..', 'app/dist/static')
+        // ignore: ['.*']
+      }
+    ])
   ]
 });

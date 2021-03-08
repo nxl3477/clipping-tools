@@ -5,6 +5,7 @@ import App from './views/App';
 import HomePage from './views/HomePage';
 import Screenshot from './views/Screenshot/Screenshot'
 import ClipBoardWatch from './views/clipBoardWatch/ClipBoardWatch'
+import StatusBarWakeUpWindow from './views/statusBarWakeUpWindow/StatusBarWakeUpWindow'
 // import CounterPage from './containers/CounterPage';
 
 export default function Routes() {
@@ -15,6 +16,7 @@ export default function Routes() {
         <Route path={routes.SCREENSHOT} exact component={ Screenshot } />
         <Route path={routes.HOME} exact component={HomePage} />
         <Route path={routes.CLIPBOARDWATCH} exact component={ClipBoardWatch}></Route>
+        <Route path={routes.STATUS_BAR_WAKEUP_WINDOW} exact component={StatusBarWakeUpWindow}></Route>
       </Switch>
     </App>
   );

@@ -1,72 +1,101 @@
-$block-size: 100px;
-$block-fz: 14px;
-$block-color: #cfcfcf;
-
-
 .homePage {
   font-size: 16px;
-  padding: 20px 10px;
-  height: 100vh;
+  min-height: 100vh;
   color: #000;
   background-color: #282c34;
   box-sizing: border-box;
-}
 
-.imgBlock, .textBlock {
-  position: relative;
-  margin: 5px;
-  vertical-align: top;
-  display: inline-block;
-  width: $block-size;
-  height: $block-size;
-  border-radius: 4px;
-  cursor: pointer;
-  overflow: hidden;
+  & .titleBar {
+    height: 21px;
+    line-height: 21px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
 
+    & .actions {
+      display: flex;
 
-  &:hover {
-    &::after {
-      display: block;
+      .close, .minimize, .fullscreen {
+        margin-left:  5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 13px;
+        height: 13px;
+        color: #333;
+        font-size: 11px;
+        border-radius: 50%;
+
+        &:hover {
+          
+        }
+      }
+      
+      & .close {
+        background-color: red;
+      }
+
+      & .minimize {
+        background-color: yellow;
+      }
+
+      & .fullscreen {
+        background-color: green;
+      }
+    }
+
+    & .titleLine {
+      flex: 1;
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
     }
   }
 
-  &::after {
-    position: absolute;
-    top: 0;
-    left: 0;
-    content: "";
-    display: none;
-    width: 100%;
+  & .container {
+    padding: 20px 120px 10px 20px;
+  }
+
+  & .lockDrawer {
+    position: fixed;
+    z-index: 2;
+    right: 0;
+    top: 0px;
+    width: 120px;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid darken($color: #393d45, $amount: 15);
+    background-color: darken($color: #393d45, $amount: 10);
+
+    & .innerScroll {
+      overflow-y: scroll;
+      height: 100%;
+      font-size: 0;
+    }
+
+    & .switch {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      left: 0;
+      width: 35px;
+      height: 80px;
+      line-height: 80px;
+      text-align: center;
+      transform: translate(-100%, -50%);
+      background-color: #393d45;
+      color: #fff;
+      border-radius: 4px 0 0 4px;
+      border: 1px solid darken($color: #393d45, $amount: 15);
+      border-right: none;
+      cursor: pointer;
+      user-select: none;
+    }
   }
-}
-
-.imgBlock {
-  background-size: cover;
-  background-position: center center;
-}
-
-.textBlock {
-  font-size: $block-fz;
-  text-align: center;
-  color: $block-color;
-  background-color: rgba(255, 255, 255, 0.2);
 
 }
 
-
-.textBlock_inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  border-radius: 4px;
-  user-select: none;
-  & > span {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-  }
+.showDataModal {
+  width: 100%;
+  height: auto;
 }

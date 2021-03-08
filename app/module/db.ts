@@ -1,18 +1,15 @@
-import low from 'lowdb'
-import FileSync from 'lowdb/adapters/FileSync'
+import Datastore from 'nedb'
 import path from 'path'
 import { localDirPath } from '../config'
-console.log('存储路径', path.join(localDirPath, "clippingTool.json"))
-const adapter = new FileSync(path.join(localDirPath, "clippingTool.json"));
-const db = low(adapter)
 
+const db = new Datastore({ 
+  filename: path.join(localDirPath, "clipData.db"),
+  autoload: true
+});
 
-db
-  .defaults({ 
-    clipData: []
-  })
-  .write()
+console.log('存储路径', path.join(localDirPath, "clipData.db"))
 
+// https://www.w3cschool.cn/nedbintro/nedbintro-t9z327mh.html
 export {
   db
 }
