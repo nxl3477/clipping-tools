@@ -76,7 +76,7 @@ const contextMenu = Menu.buildFromTemplate([
         title: '剪贴板',
         message: '剪贴板',
         buttons: ['Ok'],
-        detail: `Version: ${pkg.version}\nAuthor: xxxx\nGithub: xxxx`,
+        detail: `Version: ${pkg.version}\nAuthor: nxl3477\nGithub: https://github.com/nxl3477/clipping-tools`,
       });
     }
   },
